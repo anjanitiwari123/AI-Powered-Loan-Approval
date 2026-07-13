@@ -1,19 +1,11 @@
 import streamlit as st
 import pandas as pd
 import pickle
-
-# ---------------------------------------------------------------
-# Page config
-# ---------------------------------------------------------------
 st.set_page_config(
     page_title="AI-Powered Loan Approval Predictor",
     page_icon="🏦",
     layout="wide"
 )
-
-# ---------------------------------------------------------------
-# Custom CSS - dark, card-style inputs
-# ---------------------------------------------------------------
 st.markdown(
     """
     <style>
@@ -62,10 +54,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
-# ---------------------------------------------------------------
-# Load the trained pipeline (preprocessor + XGBClassifier)
-# ---------------------------------------------------------------
 @st.cache_resource
 def load_model():
     with open("best_res.pkl", "rb") as f:
@@ -74,17 +62,8 @@ def load_model():
 
 model = load_model()
 
-DEFAULT_THRESHOLD = 0.5  # standard threshold — matches the 95.8% accuracy reported in the notebook
-
-# ---------------------------------------------------------------
-# Header
-# ---------------------------------------------------------------
+DEFAULT_THRESHOLD = 0.5  
 st.markdown("# 🏦 AI-Powered Loan Approval")
-
-
-# ---------------------------------------------------------------
-# Financial Information
-# ---------------------------------------------------------------
 st.markdown("## Financial Information")
 
 c1, c2 = st.columns(2)
@@ -112,10 +91,6 @@ with c2:
     Loan_Term = st.number_input("Loan Term (Months)", min_value=1, max_value=480, value=120, step=1)
 
 DTI_Ratio = st.slider("Debt-to-Income (DTI) Ratio", min_value=0.0, max_value=1.0, value=0.3, step=0.01)
-
-# ---------------------------------------------------------------
-# Personal Information
-# ---------------------------------------------------------------
 st.markdown("## Personal Information")
 
 c1, c2 = st.columns(2)
@@ -137,10 +112,6 @@ with c2:
     Employer_Category = st.selectbox("Employer Category", ["Government", "MNC", "Private", "Business", "Unemployed"])
 
 Marital_Status = st.selectbox("Marital Status", ["Married", "Single"])
-
-# ---------------------------------------------------------------
-# Loan Details
-# ---------------------------------------------------------------
 st.markdown("## Loan Details")
 
 c1, c2 = st.columns(2)
@@ -149,11 +120,7 @@ with c1:
 with c2:
     Property_Area = st.selectbox("Property Area", ["Urban", "Semiurban", "Rural"])
 
-threshold = DEFAULT_THRESHOLD  # fixed at 0.5 (standard cutoff, matches 95.8% test accuracy)
-
-# ---------------------------------------------------------------
-# Build input dataframe in the EXACT column order used for training
-# ---------------------------------------------------------------
+threshold = DEFAULT_THRESHOLD  
 input_dict = {
     "Applicant_Income": Applicant_Income,
     "Coapplicant_Income": Coapplicant_Income,
@@ -178,10 +145,6 @@ input_df = pd.DataFrame([input_dict])
 
 with st.expander("🔍 View input data"):
     st.dataframe(input_df.T.rename(columns={0: "Value"}))
-
-# ---------------------------------------------------------------
-# Predict
-# ---------------------------------------------------------------
 if st.button("🔮 Predict Loan Approval", type="primary", use_container_width=True):
     try:
         proba_approve = float(model.predict_proba(input_df)[0][1])
